@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF=8"?>
 <dataset>
-<Alumno id="1" name="Juan"  grade="0" email="prueba@asd.com" age ="20"/>
+    <Alumno  nombre="Melissa" edad ="20" id="1" promedio="10.0" email="Melissa@gmail.com" />
+    <Alumno  nombre="Ivanna" edad ="19" id="2" promedio="8.0" email="Ivanna@gmail.com" />
 
+<Alumno  nombre="vero" edad ="21" id="3" promedio="9.5" email="vero@gmail.com" />
 
 </dataset>
+
+

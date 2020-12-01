@@ -1,127 +1,90 @@
 package com.mayab.calidad.dao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.sql.*;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.HashMap;
 
-import com.mayab.calidad.doubles.Alumno;
-
-public class AlumnoDAOforTest implements DAO {
-	public HashMap<Integer, Alumno> registros = new HashMap<Integer, Alumno>();
-
-	
-public HashMap<Integer, Alumno> getRegistros() {
-		return registros;
+public class AlumnoDAOforTest implements DAO{
+	@Override
+	public String addAlumno(Alumno alumno) {
+		// TODO Auto-generated method stub	
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DBUnit"
+					+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "");
+			String query = "Insert Into Alumnos(nombre, edad, id, promedio, email) values (?, ?, ?, ?, ?);";
+						PreparedStatement preparedStatement = conn.prepareStatement(query);
+			preparedStatement.setString (1, alumno.getNombre());
+			preparedStatement.setInt(2, alumno.getEdad());
+			preparedStatement.setInt(3, alumno.getId());
+			preparedStatement.setFloat(4, alumno.getPromedio());
+			preparedStatement.setString(5, alumno.getEmail());
+			
+			preparedStatement.execute();
+			conn.close();
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return "Se agrego alumno";
 	}
 
-	public void setRegistros(HashMap<Integer, Alumno> registros) {
-		this.registros = registros;
+	@Override
+	public String deleteAlumno(Alumno alumno) {
+		// TODO Auto-generated method stub
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DBUnit"
+					+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "");
+			String query = "Delete from Alumnia where id = ?;";
+			PreparedStatement preparedStatement = conn.prepareStatement(query);
+			preparedStatement.setInt (1, alumno.getId());
+		
+			preparedStatement.execute();
+			conn.close();
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return "Se elimino alumno";
 	}
 
-public Connection getConnection()
-{
-	
-	Connection con = null;
-	try {
-//		Class.forName("oracle.jdbc.driver.OracleDriver");
-//		DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-//		con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521/xe","dbunit","dbunit");
-		
-		Class.forName("com.mysql.jdbc.Driver");
-		 con = DriverManager.getConnection("jdbc:mysql://localhost:3306/DBUnit"
-				+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "");
-	}catch(Exception e) {
-		
-		System.out.println(e);
-		
-	}
-	
-	return con;
-    
-}
-
-public void addAlumno (Alumno a)
-{
-	Connection con=getConnection();
-	PreparedStatement ps;
-	try {
-		ps = con.prepareStatement("insert into alumnos (nombre, id, edad, promedio, correo) values (?,?,?,?,?)");
-	
-		ps.setString(1, a.getNombre());
-		ps.setInt(2, a.getId());
-		ps.setInt(3, a.getEdad());
-		ps.setFloat(4, a.getPromedio());
-		ps.setString(5, a.getEmail());
-	
-		
-		int aux = ps.executeUpdate();
-		con.close();
-	}
-		catch(SQLException e)
-	{
-			e.printStackTrace();
+	@Override
+	public String updatePromedio(Alumno alumno) {
+		// TODO Auto-generated method stub
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DBUnit"
+					+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "");
+			String query = "Update Alumnia Set average = ? where id = ?;";
+			PreparedStatement preparedStatement = conn.prepareStatement(query);
+			preparedStatement.setDouble(1, alumno.getPromedio());
+			preparedStatement.setInt (2, alumno.getId());
+			preparedStatement.execute();
+			conn.close();
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return "Se actualizo promedio";
 	}
 
-}
-
-
-public Boolean eliminarAlumno(Alumno alumno) {
-	// TODO Auto-generated method stub
-	try {
-		Connection con = getConnection();
-		PreparedStatement ps = con.prepareStatement("DELETE FROM alumno WHERE id = ?");
-	ps.setString(1, String.valueOf(alumno.getId()));
-		int status = ps.executeUpdate();
-		con.close();
+	@Override
+	public boolean getAll() {
+		// TODO Auto-generated method stub
 		
-	}catch(Exception e) {
-		e.printStackTrace();}
-	return null;
-
-}
-public Boolean actualizarPromedio(Alumno alumno, Float promedio) {
-	// TODO Auto-generated method stub
-	return null;
-}
-
-public String getAlumno(String id) {
-	// TODO Auto-generated method stub
-	Connection con=getConnection();
-	PreparedStatement ps;
-	
-	return null;
-
-	
-
-
-}
-
-@Override
-public void deleteAlumno(Alumno a) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public void updatePromedio(Alumno a, float NuevoPromedio) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public int getNumeroAlumnos() {
-	// TODO Auto-generated method stub
-	return 0;
-}
-
-@Override
-public String getAlumno(int id) {
-	// TODO Auto-generated method stub
-	return null;
-}
-
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/DBUnit"
+					+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "");
+			String query = "Select * from Alumnia";
+			PreparedStatement preparedStatement = conn.prepareStatement(query);
+			preparedStatement.execute();
+			conn.close();
+			
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		return true;
+		
+	}
 
 
 }

@@ -1,133 +1,107 @@
-package com.mayab.calidad.doubles;
-import static org.junit.Assert.*;
+package com.mayab.calidad.DbUnit;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.mayab.calidad.dao.Alumno;
 import com.mayab.calidad.dao.AlumnoDAOforTest;
-import com.mayab.calidad.doubles.Alumno;
 
-import static org.junit.Assert.*;
-
-import static org.hamcrest.Matchers.*;
-
+import org.dbunit.Assertion;
 import org.dbunit.DBTestCase;
-import org.dbunit.DatabaseUnitException;
-import org.dbunit.dataset.DataSetException;
+import org.dbunit.PropertiesBasedJdbcDatabaseTester;
+import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 
-import org.dbunit.PropertiesBasedJdbcDatabaseTester;
-import org.dbunit.database.IDatabaseConnection;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.dbunit.Assertion;
+public class TestAlumnoDAOOracleInsert extends DBTestCase{
+	
+	public TestAlumnoDAOOracleInsert(String name) {
+		super(name);
+		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "com.mysql.cj.jdbc.Driver");
+		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:mysql://localhost:3306/DBUnit"
+			+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "root");
+		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "");
+	}
 
-public class TestAlumnoDAOOracleInsert extends DBTestCase {
-	
-	
-	public TestAlumnoDAOOracleInsert(String name)
-	{
-			super(name);
-//			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "oracle.jdbc.driver.OracleDriver"); //.driver.Or...
-//			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:oracle:thin:@localhost:1522:xe");
-//			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "dbunit");
-//			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "dbunit");
-			
-			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "com.mysql.cj.jdbc.Driver");
-			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:mysql://localhost:3306/DBUnit"
-				+ "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
-			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "root");
-			System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "");
-			
-			
-			
-	}
-		
 	@Before
-	public void setUp() throws Exception{
-		
+	public void setUp() throws Exception {
 		super.setUp();
-		IDatabaseConnection con = getConnection();
+		IDatabaseConnection conn = getConnection();
 		try {
-			DatabaseOperation.CLEAN_INSERT.execute(con, getDataSet());
-		}
-		finally {
-			con.close();	
+			DatabaseOperation.CLEAN_INSERT.execute(conn, getDataSet());
+		}finally {
+			conn.close();
 		}
 	}
-	
 
 	@After
-	public void tearDown() throws Exception{
-		
+	public void tearDown() throws Exception {
 	}
-	
-	
+
 	@Test
 	public void testInsert() throws Exception {
-		
-				Alumno a = new Alumno();
-				a.setId(2);
-				a.setNombre("Melissa");
-				a.setEdad(20);
-				a.setPromedio(0);
-				a.setEmail("prueba@asd.com");
-
-				DAOOracle dao = new DAOOracle();
-				dao.addAlumno(a);
-				IDatabaseConnection con = null;
-				int actualRows = 0;
-				try {
-					con = getConnection();
-					actualRows =  con.getRowCount("Alumnos");
-					
-				dao.addAlumno(a);
-					
-					
-				}catch(Exception e) {
-					e.printStackTrace();
-				}
-				assertEquals(actualRows+1, con.getRowCount("Alumnos"));
-				con.close();
+		IDatabaseConnection conn = getConnection();
+		Alumno alumno = new Alumno("Melissa", 20, 1, (float) 9.5, "Melissa@gmail.com");		
+		AlumnoDAOforTest functions = new AlumnoDAOforTest();
+		int size = conn.getRowCount("Alumnos");
+		functions.addAlumno(alumno);
+		assertEquals(size + 1, conn.getRowCount("Alumnos"));
+		conn.close();
 	}
-
+	
 	@Test
-	public void testDelete() throws Exception
-	{
-				Alumno a = new Alumno();
-				DAOOracle otrodao = new DAOOracle();
-				IDatabaseConnection con = null;
-				int actualRows = 0;
-				try {
-					con = getConnection();
-					actualRows = con.getRowCount("alumno");
-					otrodao.deleteAlumno(a);					
-				}
-				catch(Exception e) {
-					e.printStackTrace();
-				}
-				assertEquals(actualRows-1, con.getRowCount("alumno"));
-				con.close();
+	public void testDelete() throws Exception{
+		IDatabaseConnection conn = getConnection();
+		Alumno alumno = new Alumno("Melissa", 20, 1, (float) 9.5, "Melissa@gmail.com");		
+		AlumnoDAOforTest functions = new AlumnoDAOforTest();
+		int size = conn.getRowCount("Alumnos");
+		functions.deleteAlumno(alumno);
+		assertEquals(size - 1, conn.getRowCount("Alumnos"));
+		conn.close();
+	}
+	
+	@Test
+	public void testUpdateAvg() throws Exception{
+		Alumno alumno = new Alumno("Melissa", 20, 1, (float) 9.5, "Melissa@gmail.com");		
+		AlumnoDAOforTest functions = new AlumnoDAOforTest();
+		functions.updatePromedio(alumno);
+		
+		IDataSet connection = getConnection().createDataSet();
+		ITable actualTable = connection.getTable("Alumnos");
+		InputStream xmlFile = getClass().getResourceAsStream("/alumno.xml");
+		IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(xmlFile);
+	    ITable expectedTable = expectedDataSet.getTable("Alumnos");
+		
+		Assertion.assertEquals(expectedTable, actualTable);
+	}
+	
+	
+	@Test
+	public void testGetALL()throws Exception{
+		IDataSet connection = getConnection().createDataSet();
+		ITable actualTable = connection.getTable("Alumnos");
+		InputStream xmlFile = getClass().getResourceAsStream("/alumno.xml");
+		IDataSet expectedDataSet = new FlatXmlDataSetBuilder().build(xmlFile);
+	    ITable expectedTable = expectedDataSet.getTable("Alumnos");
+		
+		Assertion.assertEquals(expectedTable, actualTable);
 	}
 
 	@Override
 	protected IDataSet getDataSet() throws Exception {
 		// TODO Auto-generated method stub
-		
-		return new FlatXmlDataSetBuilder().build(new File("/my-app/src/resources/alumno.xml"));
+		InputStream xmlFile = getClass().getResourceAsStream("/alumno.xml");
+		return new FlatXmlDataSetBuilder().build(xmlFile);
 	}
+
 }
-	
-
-
